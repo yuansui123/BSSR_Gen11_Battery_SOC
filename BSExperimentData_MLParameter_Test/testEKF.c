@@ -2,6 +2,15 @@
 #include "batteryEKF.h"
 #include "batteryEKF.c"
 
+void printTime(){
+   float time = 0.0f;
+
+   for(int i =0; i<MAX_ITERATION_NUM; i++){
+      time += deltaT[i];
+      printf("%f\n", time);
+   }
+}
+
 void printBlueSkySOC(){
    EKF_Battery test; 
 
@@ -16,5 +25,5 @@ void printBlueSkySOC(){
 
 void main(){
    printBlueSkySOC();
-   
+   //printTime();
 }
