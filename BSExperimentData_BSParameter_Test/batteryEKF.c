@@ -276,14 +276,17 @@ void run_EKF(EKF_Model_14p* inputBatt, uint32_t testDataID){
     printf("Current %f, Voltage %f \n", current[testDataID], voltage[testDataID]);
 #endif
 
-    float I_Input = current[testDataID];
+    float dt = deltaT[testDataID];
+    compute_A_B_dt(dt);
+
+    float I_Input = current[testDataID]; // current reading
     float I_InSign = 0.0f;
 
     if (I_Input != 0){
         I_InSign = (I_Input > 0.0f) ? 1.0f : -1.0f;
     }
 
-    V_Measured[0] = voltage[testDataID];   // voltage reading
+    V_Measured[0] = voltage[testDataID]; // voltage reading
     V_OCV[0] = OCV(inputBatt->stateX[0]);
 
 #if DEBUG_PRINTS
@@ -305,14 +308,14 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
     // insert code for using APIs
     compute_A_B_dt(dt);
 
-    float I_Input = 0.0f;
+    float I_Input = 0.0f; // current reading
     float I_InSign = 0.0f;
 
     if (I_Input != 0){
         I_InSign = (I_Input > 0.0f) ? 1.0f : -1.0f;
     }
 
-    V_Measured[0] = 0.0f;   // voltage reading
+    V_Measured[0] = 0.0f; // voltage reading
     V_OCV[0] = OCV(inputBatt->stateX[0]);
 
 #endif // OFFLINE_TEST
@@ -357,6 +360,7 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     multiply_EKF(C, P_k1, C_P, dim3, dim1);
+
 #if DEBUG_PRINTS
     printf("\nC_P\n");
     printMatrix(C_P, dim3);
@@ -425,6 +429,7 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
     printf("\ninputBatt->covP\n");
     printMatrix(inputBatt->covP, dim1);
 #endif
+
     // a priori state estimate
     multiply_EKF(A, inputBatt->stateX, A_X, dim1, dim2);
 
@@ -481,6 +486,7 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     multiply_EKF(W, Z_err, W_Zerr, dim2, dim4);
+    
 #if DEBUG_PRINTS
     printf("\nW_Zerr\n");
     printMatrix(W_Zerr, dim2);
