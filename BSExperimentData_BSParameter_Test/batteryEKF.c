@@ -14,7 +14,6 @@ void printMatrix(float* input, uint8_t* size){
 void initBatteryAlgo(EKF_Battery* inBatteryPack){
 
     for(uint8_t unit = 0; unit < NUM_14P_UNITS; unit++){  
-        
         initEKFModel(&inBatteryPack->batteryPack[unit]);
     }
 
@@ -118,7 +117,7 @@ void addition_EKF(float* operand_1, float* operand_2, float* result, uint8_t* si
 
 uint8_t multiply_EKF(float* operand_1, float* operand_2, float* result, uint8_t* opDim_1, uint8_t* opDim_2){
 
-    // opDim_1 and opDim_2 conatin the dimensions of operand_1 and operand_2 in an array of size 2 
+    // opDim_1 and opDim_2 contain the dimensions of operand_1 and operand_2 in an array of size 2
     uint8_t r_1 = opDim_1[0];
     uint8_t c_1 = opDim_1[1];
     uint8_t r_2 = opDim_2[0];
@@ -229,7 +228,7 @@ uint8_t inverse_EKF(float* in, float* out, uint8_t* dim){
 
         }
 
-        //Normalization: 
+        //Normalization:
         for (uint16_t i = 0; i < rows; i++) {
             float temp = copyIn[i*cols+i];
             copyIn[i*cols+i]= 1;
@@ -246,21 +245,21 @@ uint8_t inverse_EKF(float* in, float* out, uint8_t* dim){
 
 float OCV(float soc){
     float dv = 0.0f;
-    float dsoc = SOC[1]-SOC[0]; //for our graph, increment in soc is constant right?
+    float dsoc = BSSR_SOC[1]- BSSR_SOC[0];
     float ocv = 0.0f;
     //using method of linear interpolation
-    if(soc <= SOC[0]){ //doesnt make sense for soc to be smaller than 0 but matlab still has this code
-        dv = (OCV0[1]+TEMP*OCVrel[1])-(OCV0[0]+TEMP*OCVrel[0]);
-        ocv = (soc - SOC[0])*(dv/dsoc)+OCV0[0]+TEMP*OCVrel[0]; 
+    if(soc <= BSSR_SOC[0]){
+        dv = BSSR_OCV[1]-BSSR_OCV[0];
+        ocv = (soc - BSSR_SOC[0])*(dv/dsoc)+BSSR_OCV[0];
         return ocv;
-    }else if(soc >= SOC[MATLAB_OCV_DATA_SIZE-1]){
-        dv = (OCV0[MATLAB_OCV_DATA_SIZE-1]+TEMP*OCVrel[MATLAB_OCV_DATA_SIZE-1])-(OCV0[MATLAB_OCV_DATA_SIZE-2]+TEMP*OCVrel[MATLAB_OCV_DATA_SIZE-2]);
-        ocv = (soc - SOC[MATLAB_OCV_DATA_SIZE-1])*(dv/dsoc)+OCV0[MATLAB_OCV_DATA_SIZE-1]+TEMP*OCVrel[MATLAB_OCV_DATA_SIZE-1];
+    }else if(soc >= BSSR_SOC[BSSR_OCV_DATA_SIZE-1]){
+        dv = BSSR_OCV[BSSR_OCV_DATA_SIZE-1]-BSSR_OCV[BSSR_OCV_DATA_SIZE-2];
+        ocv = (soc - BSSR_SOC[BSSR_OCV_DATA_SIZE-1])*(dv/dsoc)+BSSR_OCV[BSSR_OCV_DATA_SIZE-1];
         return ocv;
-    }else if((soc>SOC[0])&&(soc<SOC[MATLAB_OCV_DATA_SIZE-1])){
-        int lowerIndex = (soc - SOC[0])/dsoc;
-        dv = (OCV0[lowerIndex+1]+TEMP*OCVrel[lowerIndex+1])-(OCV0[lowerIndex]+TEMP*OCVrel[lowerIndex]);
-        ocv = OCV0[lowerIndex]+TEMP*OCVrel[lowerIndex] + ((soc - SOC[lowerIndex])*(dv/dsoc));
+    }else if((soc>BSSR_SOC[0])&&(soc<BSSR_SOC[BSSR_OCV_DATA_SIZE-1])){
+        int lowerIndex = (soc - BSSR_SOC[0])/dsoc;
+        dv = BSSR_OCV[lowerIndex+1]-BSSR_OCV[lowerIndex];
+        ocv = BSSR_OCV[lowerIndex] + ((soc - BSSR_SOC[lowerIndex])*(dv/dsoc));
         return ocv;
     }else{
         return 0;
@@ -277,19 +276,15 @@ void run_EKF(EKF_Model_14p* inputBatt, uint32_t testDataID){
     printf("Current %f, Voltage %f \n", current[testDataID], voltage[testDataID]);
 #endif
 
-    float I_Input = current[testDataID]; //current reading
+    float I_Input = current[testDataID];
     float I_InSign = 0.0f;
-    if (I_Input != 0){ 
+
+    if (I_Input != 0){
         I_InSign = (I_Input > 0.0f) ? 1.0f : -1.0f;
     }
-    U[0] = I_Input;
-    U[1] = I_InSign;
 
-    V_Measured[0] = voltage[testDataID]; //voltage reading
+    V_Measured[0] = voltage[testDataID];   // voltage reading
     V_OCV[0] = OCV(inputBatt->stateX[0]);
-
-    float DeltaT = deltaT[testDataID]; //delta t
-    compute_A_B_dt(DeltaT);
 
 #if DEBUG_PRINTS
     printf("OCV: %f | %f \n", V_OCV[0], inputBatt->stateX[0]);
@@ -313,10 +308,10 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
     float I_Input = 0.0f;
     float I_InSign = 0.0f;
 
-    if (I_Input != 0){ 
+    if (I_Input != 0){
         I_InSign = (I_Input > 0.0f) ? 1.0f : -1.0f;
     }
-    
+
     V_Measured[0] = 0.0f;   // voltage reading
     V_OCV[0] = OCV(inputBatt->stateX[0]);
 
@@ -348,9 +343,9 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 
 #if DEBUG_PRINTS
     printf("\nP_k1\n");
-    printMatrix(P_k1, dim1); 
+    printMatrix(P_k1, dim1);
 #endif
- 
+
     // compute the a priori state covariance
     transpose_EKF(C, C_T, dim3);
 
@@ -362,7 +357,6 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     multiply_EKF(C, P_k1, C_P, dim3, dim1);
-
 #if DEBUG_PRINTS
     printf("\nC_P\n");
     printMatrix(C_P, dim3);
@@ -431,7 +425,6 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
     printf("\ninputBatt->covP\n");
     printMatrix(inputBatt->covP, dim1);
 #endif
-
     // a priori state estimate
     multiply_EKF(A, inputBatt->stateX, A_X, dim1, dim2);
 
@@ -455,6 +448,8 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     // a priori measurement
+    U[0] = I_Input;
+    U[1] = I_InSign;
     multiply_EKF(C, X_k1, C_X, dim4, dim3);
 
 #if DEBUG_PRINTS
@@ -490,12 +485,12 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
     printf("\nW_Zerr\n");
     printMatrix(W_Zerr, dim2);
 #endif
-    
-    addition_EKF(X_k1, W_Zerr, inputBatt->stateX, dim2, 0);    // SOC in inputBatt->stateX[0] 
+
+    addition_EKF(X_k1, W_Zerr, inputBatt->stateX, dim2, 0);    // SOC in inputBatt->stateX[0]
 
 #if DEBUG_PRINTS
     printf("\nStateX\n");
-    printMatrix(inputBatt->stateX, dim2);  
+    printMatrix(inputBatt->stateX, dim2);
 #endif
 
     return;
