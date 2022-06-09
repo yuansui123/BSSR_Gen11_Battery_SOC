@@ -486,7 +486,7 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     multiply_EKF(W, Z_err, W_Zerr, dim2, dim4);
-    
+
 #if DEBUG_PRINTS
     printf("\nW_Zerr\n");
     printMatrix(W_Zerr, dim2);
