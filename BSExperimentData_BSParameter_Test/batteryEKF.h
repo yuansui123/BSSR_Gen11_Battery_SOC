@@ -3,7 +3,7 @@
 
 #define _WINDOWS (1)
 #define OFFLINE_TEST (1)
-#define DEBUG_PRINTS (1)
+#define DEBUG_PRINTS (0)
 
 #if OFFLINE_TEST
 #include "blueskyOCVData.h"

@@ -281,23 +281,26 @@ void run_EKF(EKF_Model_14p* inputBatt, uint32_t testDataID){
 
     float I_Input = current[testDataID]; // current reading
     float I_InSign = 0.0f;
-
     if (I_Input != 0){
         I_InSign = (I_Input > 0.0f) ? 1.0f : -1.0f;
     }
+    U[0] = I_Input;
+    U[1] = I_InSign;
 
     V_Measured[0] = voltage[testDataID]; // voltage reading
     V_OCV[0] = OCV(inputBatt->stateX[0]);
 
 #if DEBUG_PRINTS
     printf("OCV: %f | %f \n", V_OCV[0], inputBatt->stateX[0]);
+    printf("U\n");
+    printMatrix(U, dim6);
     printf("A\n");
     printMatrix(A, dim1);
-    printf("\nB\n");
+    printf("B\n");
     printMatrix(B, dim5);
-    printf("\nstateX\n");
+    printf("stateX\n");
     printMatrix(inputBatt->stateX, dim2);
-    printf("\ncovP\n");
+    printf("covP\n");
     printMatrix(inputBatt->covP, dim1);
 #endif
 
@@ -438,6 +441,11 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
     printMatrix(A_X, dim2);
 #endif
 
+#if DEBUG_PRINTS
+    printf("\nU\n");
+    printMatrix(U, dim6);
+#endif
+
     multiply_EKF(B, U, B_U, dim5, dim6);
 
 #if DEBUG_PRINTS
@@ -453,8 +461,6 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     // a priori measurement
-    U[0] = I_Input;
-    U[1] = I_InSign;
     multiply_EKF(C, X_k1, C_X, dim4, dim3);
 
 #if DEBUG_PRINTS

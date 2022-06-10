@@ -4,7 +4,7 @@ void printMatrix(float* input, uint8_t* size){
 
     for(int i = 0; i < size[0]; i++){
         for(int j = 0; j < size[1]; j++){
-            printf("%.8f  ", input[i*size[1] + j]);
+            printf("%.10f  ", input[i*size[1] + j]);
         }
         printf("\n");
     }
@@ -59,11 +59,11 @@ void init_A_Matrix(){
     A[4] = exp(-DELTA_T/(R_CT*C_CT));
     A[8] = exp(-DELTA_T/(R_D*C_D));
 
-#if DEBUG_PRINTS
+//#if DEBUG_PRINTS
     printf("A initial\n");
     printMatrix(A, dim1);
     printf("\n");
-#endif
+//#endif
 
     return;
 }
@@ -74,11 +74,11 @@ void init_B_Matrix(){
     B[2] = 1 - exp(-DELTA_T/(R_CT*C_CT));
     B[4] = 1 - exp(-DELTA_T/(R_D*C_D));
 
-#if DEBUG_PRINTS
+//#if DEBUG_PRINTS
     printf("B initial\n");
     printMatrix(B, dim5);
     printf("\n");
-#endif
+//#endif
 
     return;
 }
@@ -278,10 +278,11 @@ void run_EKF(EKF_Model_14p* inputBatt, uint32_t testDataID){
 
     float I_Input = current[testDataID];
     float I_InSign = 0.0f;
-
     if (I_Input != 0){ 
         I_InSign = (I_Input > 0.0f) ? 1.0f : -1.0f;
     }
+    U[0] = I_Input;
+    U[1] = I_InSign;
 
     V_Measured[0] = voltage[testDataID];   // voltage reading
     V_OCV[0] = OCV(inputBatt->stateX[0]);
@@ -448,8 +449,6 @@ void run_EKF(EKF_Model_14p* inputBatt, float dt){
 #endif
 
     // a priori measurement
-    U[0] = I_Input;
-    U[1] = I_InSign;
     multiply_EKF(C, X_k1, C_X, dim4, dim3);
 
 #if DEBUG_PRINTS
