@@ -37,7 +37,7 @@
 #define INPUT_NUM (2)
 #define OUTPUT_NUM (1)
 
-#define Q_CAP (49.0f)   // in Ah 
+#define Q_CAP (49000.0f)   // in Ah 
 #define R_INT (0.0074f)    // in Ohm
 #define R_CT  (0.005f)     // in Ohm
 #define C_CT  (4772.21f)   // in Farad

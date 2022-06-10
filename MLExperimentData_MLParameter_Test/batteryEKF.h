@@ -32,7 +32,7 @@
 #define INPUT_NUM (2)   
 #define OUTPUT_NUM (1)
 //choosen parameter are for when temperature T= 25
-#define Q_CAP (5.1344368f*3600)   // in Ah how precise do we want these values to be?
+#define Q_CAP (5.1344368f*3600)   // 18483.9725 in Ah how precise do we want these values to be?
 #define R_INT (0.0112f)     // internal resistance of the 14p battery unit
 #define R_CT  (0.0025f)     //R*C=2.4107 R=0.0025 -> C=2.4107/0.0025=964.25
 #define C_CT  (964.25f)
