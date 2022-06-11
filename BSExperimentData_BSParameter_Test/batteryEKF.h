@@ -37,10 +37,10 @@
 #define INPUT_NUM (2)
 #define OUTPUT_NUM (1)
 
-#define Q_CAP (49000.0f)   // in Ah 
+#define Q_CAP (176400.0f)   // in Ampere Second  49 Ampere hour = 49*3600 = 176400 Ampere Second 
 #define R_INT (0.0074f)    // in Ohm
 #define R_CT  (0.005f)     // in Ohm
-#define C_CT  (4772.21f)   // in Farad
+#define C_CT  (4772.21f)   // in Farad 
 #define R_D   (0.005f)     // in Ohm
 #define C_D   (4772.21f)   // in Farad
 
