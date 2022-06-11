@@ -54,19 +54,19 @@
 
 #else
 
-#define NUM_14P_UNITS (5) //except one BMS which has 4
-#define DELTA_T (1.0f)  // sampling rate in seconds. constant
+#define NUM_14P_UNITS (5) // one bms is exception which has 4 units
+#define DELTA_T (1.0f)  // in second
 
 #define STATE_NUM (3)
 #define INPUT_NUM (2)
 #define OUTPUT_NUM (1)
 
-#define Q_CAP (0.0f) //Ah
-#define R_INT (0.0074f) //Ohm
-#define R_CT  (0.005f) //Farad
-#define C_CT  (4772.21f)
-#define R_D   (0.005f)
-#define C_D   (4772.21f)
+#define Q_CAP (176400.0f)   // in Ampere Second  49 Ampere hour = 49*3600 = 176400 Ampere Second 
+#define R_INT (0.0074f)    // in Ohm
+#define R_CT  (0.005f)     // in Ohm
+#define C_CT  (4772.21f)   // in Farad 
+#define R_D   (0.005f)     // in Ohm
+#define C_D   (4772.21f)   // in Farad
 
 #define VAR_Z    (2e-4f)
 #define VAR_I_D  (1e-6f)

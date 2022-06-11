@@ -1,5 +1,6 @@
 #include "batteryEKF.h"
 
+#if _WINDOWS
 void printMatrix(float* input, uint8_t* size){
 
     for(int i = 0; i < size[0]; i++){
@@ -10,6 +11,7 @@ void printMatrix(float* input, uint8_t* size){
     }
 
 }
+#endif
 
 void initBatteryAlgo(EKF_Battery* inBatteryPack){
 
@@ -177,7 +179,10 @@ uint8_t inverse_EKF(float* in, float* out, uint8_t* dim){
     uint8_t cols = dim[1];
 
     if(rows != cols){
+       
+#if _WINDOWS
         printf("Matrix is not square - cannot compute inverse with this method... \n");
+#endif
         return 0;
     }
 
